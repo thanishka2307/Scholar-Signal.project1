@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scholar Signal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,500;0,700;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f0e8;
+      --card: #fffdf8;
+      --ink: #2b2416;
+      --muted: #8a7e6a;
+      --accent: #c86a2d;
+      --accent2: #3d6b52;
+      --border: #e0d9cc;
+      --red: #e05252;
+      --yellow: #d4a017;
+      --green: #4a9e6b;
+      --shadow: 0 2px 12px rgba(43,36,22,0.08);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 0 0 60px 0;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--ink);
+      color: var(--bg);
+      padding: 22px 36px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 16px rgba(43,36,22,0.18);
+    }
+    .logo-text h1 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.55rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #f5f0e8;
+    }
+    .logo-text p {
+      font-size: 0.72rem;
+      color: #bdb09a;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .header-pills {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .spotify-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #1DB954;
+      color: #fff;
+      text-decoration: none;
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+    .spotify-pill:hover { opacity: 0.85; }
+    .spotify-pill svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .spotify-pill.break {
+      background: transparent;
+      border: 1.5px solid rgba(255,255,255,0.22);
+      color: #e8dfc8;
+    }
+    .spotify-pill.break:hover {
+      background: rgba(255,255,255,0.08);
+      opacity: 1;
+    }
+    .break-icon { font-size: 14px; line-height: 1; }
+
+    /* LAYOUT */
+    .main-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 20px 0;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 28px;
+    }
+
+    /* SECTION TITLES */
+    .section-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 14px;
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 22px 24px;
+      box-shadow: var(--shadow);
+    }
+
+    /* ADD TASK FORM */
+    .add-task-card { margin-bottom: 20px; }
+    .form-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .form-row input,
+    .form-row select {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      padding: 9px 13px;
+      color: var(--ink);
+      outline: none;
+      transition: border 0.2s;
+    }
+    .form-row input:focus,
+    .form-row select:focus { border-color: var(--accent); }
+    .task-name-input     { flex: 2; min-width: 160px; }
+    .task-type-select    { flex: 1; min-width: 120px; }
+    .task-deadline-input { flex: 1.5; min-width: 180px; }
+
+    /* BUTTONS */
+    .btn {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 0.88rem;
+      padding: 9px 20px;
+      border: none;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #b55a22; }
+    .btn-sm { padding: 5px 12px; font-size: 0.78rem; border-radius: 7px; }
+    .btn-ghost {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--muted);
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-extend {
+      background: #e8f4ec;
+      color: var(--accent2);
+      border: 1.5px solid #b8ddc5;
+    }
+    .btn-extend:hover { background: #d0ecda; }
+    .btn-danger {
+      background: #fdeaea;
+      color: var(--red);
+      border: 1.5px solid #f5c5c5;
+    }
+    .btn-danger:hover { background: #f9d5d5; }
+
+    /* LEGEND */
+    .legend {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
+      color: var(--muted);
+    }
+    .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+    /* TASK LIST */
+    .tasks-list { display: flex; flex-direction: column; gap: 12px; }
+    .task-card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 15px 20px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: box-shadow 0.2s;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .task-card:hover { box-shadow: 0 4px 20px rgba(43,36,22,0.13); }
+
+    .tl-dot {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .tl-red    { background: var(--red);    box-shadow: 0 0 0 4px rgba(224,82,82,0.16); }
+    .tl-yellow { background: var(--yellow); box-shadow: 0 0 0 4px rgba(212,160,23,0.16); }
+    .tl-green  { background: var(--green);  box-shadow: 0 0 0 4px rgba(74,158,107,0.16); }
+
+    .task-info { flex: 1; min-width: 0; }
+    .task-info h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 0.98rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .task-meta {
+      font-size: 0.76rem;
+      color: var(--muted);
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .task-type-badge {
+      background: #ede8df;
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-size: 0.7rem;
+      font-weight: 500;
+    }
+    .countdown-text { font-weight: 500; font-size: 0.78rem; }
+    .ct-red    { color: var(--red); }
+    .ct-yellow { color: var(--yellow); }
+    .ct-green  { color: var(--accent2); }
+
+    .task-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    .empty-state {
+      text-align: center;
+      padding: 36px 20px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .done-toggle-btn {
+      background: none;
+      border: none;
+      font-size: 0.79rem;
+      color: var(--muted);
+      cursor: pointer;
+      margin-top: 10px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .task-card.done { opacity: 0.5; }
+    .task-card.done .task-info h3 { text-decoration: line-through; }
+
+    /* SIDEBAR */
+    .sidebar { display: flex; flex-direction: column; gap: 22px; }
+
+    /* REMINDER CARD */
+    .reminder-card p {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.55;
+    }
+    .reminder-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .toggle-switch { position: relative; width: 42px; height: 24px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0;
+      background: var(--border);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 18px; height: 18px;
+      left: 3px; top: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background: var(--accent2); }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
+    .toggle-label { font-size: 0.84rem; color: var(--ink); }
+
+    /* NOTES CARD */
+    .notes-list { list-style: none; margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .note-item {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.83rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      animation: slideIn 0.3s ease;
+    }
+    .note-content { flex: 1; min-width: 0; }
+    .note-label {
+      font-weight: 500;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .note-link {
+      font-size: 0.75rem;
+      color: var(--accent);
+      text-decoration: none;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .note-link:hover { text-decoration: underline; }
+    .note-delete {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1;
+      padding: 2px 4px;
+      flex-shrink: 0;
+    }
+    .note-delete:hover { color: var(--red); }
+    .notes-add-form {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .notes-add-form input {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.83rem;
+      padding: 8px 11px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--ink);
+      outline: none;
+    }
+    .notes-add-form input:focus { border-color: var(--accent); }
+    .notes-add-form .btn { align-self: flex-end; }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(43,36,22,0.38);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 28px 28px 22px;
+      width: 340px;
+      box-shadow: 0 8px 40px rgba(43,36,22,0.2);
+      animation: popIn 0.22s ease;
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.93); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    .modal h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.05rem;
+      margin-bottom: 14px;
+    }
+    .modal label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 5px;
+      margin-top: 12px;
+    }
+    .modal input {
+      font-family: 'DM Sans', sans-serif;
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-size: 0.88rem;
+      background: var(--bg);
+      color: var(--ink);
+      outline: none;
+    }
+    .modal input:focus { border-color: var(--accent); }
+    .modal-reason {
+      font-size: 0.8rem;
+      color: var(--muted);
+      background: #f3ece0;
+      border-radius: 8px;
+      padding: 9px 12px;
+      margin-top: 10px;
+      width: 100%;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      resize: none;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    /* TOAST */
+    #toast-container {
+      position: fixed;
+      bottom: 28px;
+      right: 24px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toast {
+      background: var(--ink);
+      color: var(--bg);
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.83rem;
+      max-width: 280px;
+      box-shadow: 0 4px 20px rgba(43,36,22,0.25);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 4.7s forwards;
+    }
+    @keyframes toastIn  { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes toastOut { from { opacity:1; } to { opacity:0; pointer-events:none; } }
+    .toast-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+
+    @media (max-width: 760px) {
+      .main-wrap { grid-template-columns: 1fr; }
+      header { padding: 16px 20px; flex-wrap: wrap; gap: 12px; }
+      .header-pills { gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-text">
+    <h1>Scholar Signal</h1>
+    <p>your academic command centre</p>
+  </div>
+  <div class="header-pills">
+    <a class="spotify-pill break" href="https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0" target="_blank">
+      <svg viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px;flex-shrink:0"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.52 17.28c-.24.36-.72.48-1.08.24-2.88-1.8-6.48-2.16-10.8-1.2-.36.12-.72-.12-.84-.48-.12-.36.12-.72.48-.84 4.68-1.08 8.64-.6 11.88 1.32.36.24.48.72.36 1.08v-.12zm1.44-3.24c-.24.36-.84.6-1.2.36-3.36-2.04-8.4-2.64-12.36-1.44-.48.12-.96-.12-1.08-.6-.12-.48.12-.96.6-1.08 4.56-1.32 10.08-.72 13.92 1.68.36.24.6.84.36 1.2l-.24-.12zm.12-3.36C15.6 8.4 9.6 8.16 6.12 9.24c-.6.12-1.2-.24-1.32-.84-.12-.6.24-1.2.84-1.32 4.08-1.2 10.68-.96 14.88 1.44.48.24.72.96.48 1.44-.24.6-.96.84-1.44.6l-.12-.12z"/></svg>
+      Study Break
+    </a>
+    <a class="spotify-pill" href="https://open.spotify.com/playlist/37i9dQZF1DX8NTLI2TtZa6" target="_blank">
+      <svg viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px;flex-shrink:0"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.52 17.28c-.24.36-.72.48-1.08.24-2.88-1.8-6.48-2.16-10.8-1.2-.36.12-.72-.12-.84-.48-.12-.36.12-.72.48-.84 4.68-1.08 8.64-.6 11.88 1.32.36.24.48.72.36 1.08v-.12zm1.44-3.24c-.24.36-.84.6-1.2.36-3.36-2.04-8.4-2.64-12.36-1.44-.48.12-.96-.12-1.08-.6-.12-.48.12-.96.6-1.08 4.56-1.32 10.08-.72 13.92 1.68.36.24.6.84.36 1.2l-.24-.12zm.12-3.36C15.6 8.4 9.6 8.16 6.12 9.24c-.6.12-1.2-.24-1.32-.84-.12-.6.24-1.2.84-1.32 4.08-1.2 10.68-.96 14.88 1.44.48.24.72.96.48 1.44-.24.6-.96.84-1.44.6l-.12-.12z"/></svg>
+      Study Playlist
+    </a>
+  </div>
+</header>
+
+<div class="main-wrap">
+
+  <!-- LEFT COLUMN -->
+  <div class="tasks-col">
+
+    <!-- Add Upcoming Work -->
+    <div class="card add-task-card">
+      <div class="section-title">Add Upcoming Work</div>
+      <div class="form-row">
+        <input class="task-name-input" id="taskName" placeholder="Assignment, project, exam name..." type="text"/>
+        <select class="task-type-select" id="taskType">
+          <option value="Assignment">Assignment</option>
+          <option value="Project">Project</option>
+          <option value="Exam">Exam</option>
+          <option value="Quiz">Quiz</option>
+          <option value="Presentation">Presentation</option>
+          <option value="Lab">Lab Report</option>
+          <option value="Reading">Reading</option>
+          <option value="Other">Other</option>
+        </select>
+        <input class="task-deadline-input" id="taskDeadline" type="datetime-local"/>
+        <button class="btn btn-primary" onclick="addTask()">+ Add</button>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> More than 3.5 days left</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div> 1 to 3.5 days left</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> Under 24 hours</div>
+      </div>
+    </div>
+
+    <!-- Upcoming Work list -->
+    <div class="section-title">Upcoming Work</div>
+    <div class="tasks-list" id="tasksList"></div>
+    <button class="done-toggle-btn" id="doneToggleBtn" onclick="toggleDone()" style="display:none">Show completed</button>
+
+  </div>
+
+  <!-- RIGHT SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- Reminders -->
+    <div class="card reminder-card">
+      <div class="section-title">Reminders</div>
+      <p>Scholar Signal watches your deadlines and sends a reminder when something is due soon.</p>
+      <div class="reminder-toggle">
+        <label class="toggle-switch">
+          <input type="checkbox" id="reminderToggle" checked onchange="toggleReminders()"/>
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="toggle-label">Smart reminders <strong>on</strong></span>
+      </div>
+    </div>
+
+    <!-- The Study Nook -->
+    <div class="card notes-card">
+      <div class="section-title">The Study Nook</div>
+      <p style="font-size:0.8rem;color:var(--muted);margin-top:-8px;margin-bottom:4px;">Save your links, resources and references here.</p>
+      <ul class="notes-list" id="notesList"></ul>
+      <div class="notes-add-form">
+        <input id="noteLabelInput" placeholder="Label — e.g. Lecture slides, YouTube" type="text"/>
+        <input id="noteLinkInput" placeholder="URL (https://...)" type="url"/>
+        <button class="btn btn-primary btn-sm" onclick="addNote()">+ Save to nook</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Extend Modal -->
+<div class="modal-overlay" id="extendModal">
+  <div class="modal">
+    <h3>Extend Deadline</h3>
+    <label>New deadline</label>
+    <input type="datetime-local" id="extendDate"/>
+    <label>Reason or note (optional)</label>
+    <textarea class="modal-reason" id="extendReason" placeholder="e.g. Group member unavailable, health issue..." rows="3"></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeExtendModal()">Cancel</button>
+      <button class="btn btn-extend btn-sm" onclick="confirmExtend()">Extend</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+  let tasks = JSON.parse(localStorage.getItem('ss_tasks') || '[]');
+  let notes = JSON.parse(localStorage.getItem('ss_notes') || '[]');
+  let remindersOn = true;
+  let showDone = false;
+  let extendingId = null;
+  let notifiedIds = new Set();
+
+  function saveTasks() { localStorage.setItem('ss_tasks', JSON.stringify(tasks)); }
+  function saveNotes()  { localStorage.setItem('ss_notes', JSON.stringify(notes)); }
+
+  function getLight(deadline) {
+    const diff = (new Date(deadline) - Date.now()) / 3600000;
+    if (diff <= 0)   return { cls: 'tl-red',    ctCls: 'ct-red',    label: 'Overdue' };
+    if (diff <= 24)  return { cls: 'tl-red',    ctCls: 'ct-red',    label: formatCountdown(diff) };
+    if (diff <= 84)  return { cls: 'tl-yellow', ctCls: 'ct-yellow', label: formatCountdown(diff) };
+    return                 { cls: 'tl-green',  ctCls: 'ct-green',  label: formatCountdown(diff) };
+  }
+
+  function formatCountdown(h) {
+    if (h <= 0) return 'Overdue';
+    const d = Math.floor(h / 24), hr = Math.floor(h % 24), min = Math.floor((h * 60) % 60);
+    if (d > 0) return `${d}d ${hr}h left`;
+    if (hr > 0) return `${hr}h ${min}m left`;
+    return `${min}m left`;
+  }
+
+  function formatDL(dl) {
+    return new Date(dl).toLocaleString('en-IN', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  }
+
+  function escHtml(s) {
+    return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function render() {
+    const list = document.getElementById('tasksList');
+    list.innerHTML = '';
+    const active = tasks.filter(t => !t.done);
+    const done   = tasks.filter(t =>  t.done);
+    const toShow = showDone ? tasks : active;
+
+    if (!toShow.length) {
+      list.innerHTML = `<div class="empty-state">No tasks yet. Add one above to get started.</div>`;
+    }
+
+    toShow.forEach(t => {
+      const li = getLight(t.deadline);
+      const card = document.createElement('div');
+      card.className = 'task-card' + (t.done ? ' done' : '');
+      card.innerHTML = `
+        <div class="tl-dot ${li.cls}"></div>
+        <div class="task-info">
+          <h3>${escHtml(t.name)}</h3>
+          <div class="task-meta">
+            <span class="task-type-badge">${t.type}</span>
+            <span>Due: ${formatDL(t.deadline)}</span>
+            <span class="countdown-text ${li.ctCls}">${li.label}</span>
+            ${t.extended ? '<span style="color:var(--accent2);font-size:0.74rem;">Extended</span>' : ''}
+          </div>
+        </div>
+        <div class="task-actions">
+          ${!t.done ? `<button class="btn btn-extend btn-sm" onclick="openExtend('${t.id}')">Extend</button>` : ''}
+          <button class="btn btn-sm ${t.done ? 'btn-ghost' : 'btn-primary'}" onclick="toggleTask('${t.id}')">${t.done ? 'Undo' : 'Done'}</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteTask('${t.id}')">Remove</button>
+        </div>`;
+      list.appendChild(card);
+    });
+
+    const btn = document.getElementById('doneToggleBtn');
+    if (done.length) {
+      btn.style.display = 'block';
+      btn.textContent = showDone
+        ? 'Hide completed'
+        : `Show ${done.length} completed task${done.length > 1 ? 's' : ''}`;
+    } else {
+      btn.style.display = 'none';
+    }
+  }
+
+  function renderNotes() {
+    const ul = document.getElementById('notesList');
+    ul.innerHTML = '';
+    if (!notes.length) {
+      ul.innerHTML = '<li style="font-size:0.8rem;color:var(--muted);text-align:center;padding:10px 0;">Nothing saved yet.</li>';
+      return;
+    }
+    notes.forEach((n, i) => {
+      const li = document.createElement('li');
+      li.className = 'note-item';
+      li.innerHTML = `
+        <div class="note-content">
+          <div class="note-label">${escHtml(n.label)}</div>
+          <a class="note-link" href="${escHtml(n.url)}" target="_blank">${escHtml(n.url)}</a>
+        </div>
+        <button class="note-delete" onclick="deleteNote(${i})">Remove</button>`;
+      ul.appendChild(li);
+    });
+  }
+
+  function addTask() {
+    const name = document.getElementById('taskName').value.trim();
+    const type = document.getElementById('taskType').value;
+    const dl   = document.getElementById('taskDeadline').value;
+    if (!name) { showToast('Please enter a task name.', 'var(--yellow)'); return; }
+    if (!dl)   { showToast('Please pick a deadline.', 'var(--yellow)'); return; }
+    tasks.unshift({ id: Date.now().toString(), name, type, deadline: dl, done: false, extended: false });
+    saveTasks(); render();
+    document.getElementById('taskName').value = '';
+    document.getElementById('taskDeadline').value = '';
+    showToast(`"${name}" added.`, 'var(--green)');
+  }
+
+  function deleteTask(id) {
+    tasks = tasks.filter(t => t.id !== id);
+    saveTasks(); render();
+  }
+
+  function toggleTask(id) {
+    const t = tasks.find(t => t.id === id);
+    if (t) { t.done = !t.done; saveTasks(); render(); }
+  }
+
+  function toggleDone() { showDone = !showDone; render(); }
+
+  function openExtend(id) {
+    extendingId = id;
+    const t = tasks.find(t => t.id === id);
+    document.getElementById('extendDate').value = t.deadline;
+    document.getElementById('extendReason').value = '';
+    document.getElementById('extendModal').classList.add('active');
+  }
+  function closeExtendModal() {
+    extendingId = null;
+    document.getElementById('extendModal').classList.remove('active');
+  }
+  function confirmExtend() {
+    const newDL = document.getElementById('extendDate').value;
+    if (!newDL) { showToast('Pick a new deadline first.', 'var(--yellow)'); return; }
+    const t = tasks.find(t => t.id === extendingId);
+    if (t) {
+      t.deadline = newDL;
+      t.extended = true;
+      notifiedIds.delete(t.id);
+      saveTasks(); render();
+      showToast(`Deadline extended for "${t.name}".`, 'var(--accent2)');
+    }
+    closeExtendModal();
+  }
+
+  function addNote() {
+    const label = document.getElementById('noteLabelInput').value.trim();
+    const url   = document.getElementById('noteLinkInput').value.trim();
+    if (!label) { showToast('Give your link a label.', 'var(--yellow)'); return; }
+    if (!url)   { showToast('Paste a URL too.', 'var(--yellow)'); return; }
+    notes.push({ label, url });
+    saveNotes(); renderNotes();
+    document.getElementById('noteLabelInput').value = '';
+    document.getElementById('noteLinkInput').value  = '';
+  }
+  function deleteNote(i) {
+    notes.splice(i, 1);
+    saveNotes(); renderNotes();
+  }
+
+  function toggleReminders() {
+    remindersOn = document.getElementById('reminderToggle').checked;
+    document.querySelector('.toggle-label').innerHTML =
+      `Smart reminders <strong>${remindersOn ? 'on' : 'off'}</strong>`;
+  }
+
+  function checkReminders() {
+    if (!remindersOn) return;
+    tasks.filter(t => !t.done).forEach(t => {
+      const diff = (new Date(t.deadline) - Date.now()) / 3600000;
+      if (diff <= 0 && !notifiedIds.has(t.id + '_over')) {
+        showToast(`"${t.name}" is overdue.`, 'var(--red)');
+        notifiedIds.add(t.id + '_over');
+      } else if (diff > 0 && diff <= 1 && !notifiedIds.has(t.id + '_1h')) {
+        showToast(`Less than 1 hour left for: "${t.name}"`, 'var(--red)');
+        notifiedIds.add(t.id + '_1h');
+      } else if (diff > 1 && diff <= 24 && !notifiedIds.has(t.id + '_24h')) {
+        showToast(`Due in under 24 hours: "${t.name}"`, 'var(--yellow)');
+        notifiedIds.add(t.id + '_24h');
+      } else if (diff > 24 && diff <= 48 && !notifiedIds.has(t.id + '_48h')) {
+        showToast(`2 days to go: "${t.name}"`, 'var(--yellow)');
+        notifiedIds.add(t.id + '_48h');
+      }
+    });
+  }
+
+  function showToast(msg, color) {
+    const c = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.innerHTML = `<span class="toast-dot" style="background:${color}"></span><span>${msg}</span>`;
+    c.appendChild(t);
+    setTimeout(() => { if (t.parentNode) t.parentNode.removeChild(t); }, 5000);
+  }
+
+  render();
+  renderNotes();
+  setInterval(() => { render(); checkReminders(); }, 60000);
+  setInterval(render, 10000);
+</script>
+</body>
+</html>

@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scholar Signal</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Georgia', serif;
+      background: #f5f0e8;
+      color: #2b2416;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* HEADER */
+    header {
+      background: #2b2416;
+      color: white;
+      padding: 16px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    header h1 { font-size: 1.3rem; margin: 0; }
+    header p  { font-size: 0.72rem; color: #bdb09a; margin: 2px 0 0 0; }
+
+    nav { display: flex; gap: 6px; flex-wrap: wrap; }
+    nav button {
+      background: transparent;
+      color: #bdb09a;
+      border: 1px solid #bdb09a;
+      padding: 7px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-family: 'Georgia', serif;
+    }
+    nav button.active { background: #c86a2d; color: white; border-color: #c86a2d; }
+
+    .user-chip { display: flex; align-items: center; gap: 8px; color: #bdb09a; font-size: 0.8rem; }
+    .user-chip span { color: white; font-weight: bold; }
+    .btn-logout {
+      background: transparent; border: 1px solid #bdb09a; color: #bdb09a;
+      padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-family: 'Georgia', serif;
+    }
+    .btn-logout:hover { border-color: #e05252; color: #e05252; }
+
+    /* PAGES */
+    .page { display: none; padding: 28px 30px; max-width: 860px; margin: 0 auto; }
+    .page.active { display: block; }
+
+    h2 { font-size: 1.15rem; margin-bottom: 14px; }
+    h3 { font-size: 0.95rem; margin: 0 0 6px 0; }
+
+    .card { background: white; border: 1px solid #e0d9cc; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+
+    .form-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    input, select, textarea {
+      font-family: 'Georgia', serif; font-size: 0.85rem;
+      padding: 8px 12px; border: 1px solid #e0d9cc; border-radius: 8px;
+      background: #f5f0e8; color: #2b2416;
+    }
+    input:focus, select:focus { border-color: #c86a2d; outline: none; }
+    .task-name { flex: 2; min-width: 150px; }
+    .task-type { flex: 1; min-width: 110px; }
+    .task-date { flex: 1.5; min-width: 170px; }
+
+    button { font-family: 'Georgia', serif; cursor: pointer; }
+    .btn-orange { background: #c86a2d; color: white; border: none; padding: 8px 18px; border-radius: 8px; font-size: 0.85rem; }
+    .btn-orange:hover { background: #b55a22; }
+    .btn-small { padding: 5px 10px; font-size: 0.75rem; border-radius: 6px; border: none; }
+    .btn-green  { background: #e8f4ec; color: #3d6b52; border: 1px solid #b8ddc5; }
+    .btn-done   { background: #c86a2d; color: white; }
+    .btn-undo   { background: #e0d9cc; color: #2b2416; }
+    .btn-remove { background: #fdeaea; color: #e05252; border: 1px solid #f5c5c5; }
+
+    .task-item {
+      background: white; border: 1px solid #e0d9cc; border-radius: 10px;
+      padding: 12px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 14px;
+    }
+    .task-item.done { opacity: 0.5; }
+    .task-item.done h3 { text-decoration: line-through; }
+    .task-info { flex: 1; }
+    .task-meta {
+      font-size: 0.75rem; color: #8a7e6a; margin-top: 4px;
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    }
+    .badge { background: #ede8df; color: #c86a2d; padding: 2px 7px; border-radius: 4px; font-size: 0.7rem; }
+    .time-left { font-weight: bold; font-size: 0.8rem; }
+    .time-red    { color: #e05252; }
+    .time-yellow { color: #d4a017; }
+    .time-green  { color: #3d6b52; }
+    .task-buttons { display: flex; gap: 6px; flex-shrink: 0; }
+    .empty { text-align: center; color: #8a7e6a; padding: 30px; font-size: 0.9rem; }
+    .done-toggle { background: none; border: none; color: #8a7e6a; font-size: 0.78rem; text-decoration: underline; cursor: pointer; margin-top: 8px; padding: 0; }
+
+    /* HOME */
+    .hero { background: #2b2416; color: white; border-radius: 14px; padding: 30px; margin-bottom: 20px; }
+    .hero h2 { font-size: 1.5rem; color: white; margin-bottom: 8px; }
+    .hero p   { font-size: 0.86rem; color: #bdb09a; margin-bottom: 16px; }
+    .hero-btn { background: #c86a2d; color: white; border: none; padding: 10px 22px; border-radius: 8px; font-size: 0.86rem; cursor: pointer; margin-right: 10px; }
+    .hero-btn:hover { background: #b55a22; }
+
+    .stats-row { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+    .stat-box { background: white; border: 1px solid #e0d9cc; border-radius: 10px; padding: 16px 22px; text-align: center; flex: 1; min-width: 100px; }
+    .stat-num   { font-size: 2rem; font-weight: bold; color: #c86a2d; }
+    .stat-label { font-size: 0.75rem; color: #8a7e6a; }
+
+    .how-it-works { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 16px; }
+    .how-step { background: white; border: 1px solid #e0d9cc; border-radius: 10px; padding: 16px; flex: 1; min-width: 160px; }
+    .how-step .num { font-size: 1.6rem; font-weight: bold; color: #c86a2d; }
+    .how-step h4 { margin: 4px 0; font-size: 0.88rem; }
+    .how-step p  { font-size: 0.76rem; color: #8a7e6a; margin: 0; }
+
+    /* PLAYLIST */
+    .playlist-section { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px; }
+    .playlist-link-card {
+      flex: 1; min-width: 220px; border-radius: 14px; overflow: hidden;
+      text-decoration: none; display: block; border: 2px solid #e0d9cc;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .playlist-link-card:hover { transform: translateY(-3px); border-color: #c86a2d; }
+    .pl-img {
+      width: 100%; aspect-ratio: 4/3; display: flex;
+      align-items: center; justify-content: center; font-size: 80px;
+    }
+    .pl-study { background: #2b2416; }
+    .pl-break { background: #3d2b0a; }
+    .pl-label { background: white; padding: 14px 16px; text-align: center; }
+    .pl-label strong { display: block; font-size: 1rem; color: #2b2416; margin-bottom: 4px; }
+    .pl-label span   { font-size: 0.76rem; color: #8a7e6a; }
+
+    /* NOOK */
+    .note-item { background: white; border: 1px solid #e0d9cc; border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .note-label { font-weight: bold; font-size: 0.85rem; }
+    .note-link  { font-size: 0.75rem; color: #c86a2d; text-decoration: none; }
+    .note-link:hover { text-decoration: underline; }
+    .note-remove { background: none; border: none; color: #8a7e6a; cursor: pointer; font-size: 0.8rem; }
+    .note-remove:hover { color: #e05252; }
+
+    /* MODAL */
+    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; justify-content: center; align-items: center; }
+    .modal-bg.open { display: flex; }
+    .modal-box { background: white; border-radius: 14px; padding: 28px; width: 340px; }
+    .modal-box h3 { margin: 0 0 18px 0; }
+    .modal-box label { font-size: 0.8rem; color: #8a7e6a; display: block; margin: 10px 0 4px; }
+    .modal-box input { width: 100%; }
+    .modal-box textarea { width: 100%; resize: none; background: #f5f0e8; border: none; border-radius: 8px; padding: 8px 12px; margin-top: 8px; font-family: 'Georgia', serif; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+
+    /* AUTH */
+    #authScreen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f5f0e8; padding: 20px; }
+    .auth-box { background: white; border: 1px solid #e0d9cc; border-radius: 16px; padding: 36px 32px; width: 100%; max-width: 380px; }
+    .auth-box .brand { text-align: center; margin-bottom: 26px; }
+    .auth-box .brand h1 { font-size: 1.4rem; margin: 0; color: #2b2416; }
+    .auth-box .brand p  { font-size: 0.76rem; color: #8a7e6a; margin: 4px 0 0 0; }
+
+    .auth-tabs { display: flex; border: 1px solid #e0d9cc; border-radius: 8px; overflow: hidden; margin-bottom: 22px; }
+    .auth-tab { flex: 1; background: none; border: none; padding: 9px; font-size: 0.85rem; color: #8a7e6a; cursor: pointer; font-family: 'Georgia', serif; }
+    .auth-tab.active { background: #2b2416; color: white; }
+
+    .auth-form { display: flex; flex-direction: column; gap: 10px; }
+    .auth-form input { width: 100%; padding: 10px 14px; border: 1px solid #e0d9cc; border-radius: 8px; background: #f5f0e8; font-size: 0.85rem; }
+    .auth-form input:focus { border-color: #c86a2d; outline: none; }
+    .auth-submit { background: #c86a2d; color: white; border: none; padding: 11px; border-radius: 8px; font-size: 0.9rem; font-family: 'Georgia', serif; cursor: pointer; margin-top: 4px; }
+    .auth-submit:hover { background: #b55a22; }
+    .auth-note  { text-align: center; font-size: 0.74rem; color: #8a7e6a; margin-top: 6px; }
+    .auth-error { font-size: 0.78rem; color: #e05252; text-align: center; min-height: 16px; }
+
+    #appShell { display: none; }
+
+    /* TOAST */
+    #toasts { position: fixed; bottom: 24px; right: 20px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background: #2b2416; color: white; padding: 10px 16px; border-radius: 10px; font-size: 0.82rem; max-width: 260px; display: flex; align-items: center; gap: 8px; font-family: 'Georgia', serif; }
+    .toast-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="authScreen">
+  <div class="auth-box">
+    <div class="brand">
+      <h1>Scholar Signal</h1>
+      <p>your academic command centre</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin"  onclick="switchTab('login')">Log in</button>
+      <button class="auth-tab"        id="tabSignup" onclick="switchTab('signup')">Sign up</button>
+    </div>
+
+    <div id="formLogin" class="auth-form">
+      <input type="text"     id="loginUser" placeholder="Username"/>
+      <input type="password" id="loginPass" placeholder="Password"/>
+      <div id="loginError" class="auth-error"></div>
+      <button class="auth-submit" onclick="doLogin()">Log in</button>
+      <p class="auth-note">No account? Switch to Sign up above.</p>
+    </div>
+
+    <div id="formSignup" class="auth-form" style="display:none;">
+      <input type="text"     id="signupUser"  placeholder="Choose a username"/>
+      <input type="password" id="signupPass"  placeholder="Choose a password"/>
+      <input type="password" id="signupPass2" placeholder="Confirm password"/>
+      <div id="signupError" class="auth-error"></div>
+      <button class="auth-submit" onclick="doSignup()">Create account</button>
+      <p class="auth-note">Already have one? Switch to Log in above.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- APP SHELL -->
+<div id="appShell">
+
+  <header>
+    <div>
+      <h1>Scholar Signal</h1>
+      <p>your academic command centre</p>
+    </div>
+    <nav>
+      <button class="active" id="tab-home"  onclick="goTo('home')">🏠 Home</button>
+      <button               id="tab-tasks" onclick="goTo('tasks')">📋 Tasks</button>
+      <button               id="tab-pl"    onclick="goTo('pl')">🎵 Playlists</button>
+      <button               id="tab-nook"  onclick="goTo('nook')">📎 Study Nook</button>
+    </nav>
+    <div class="user-chip">
+      Hi, <span id="headerUser"></span>
+      <button class="btn-logout" onclick="doLogout()">Log out</button>
+    </div>
+  </header>
+
+  <!-- HOME -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <h2>Stay on top of every deadline.</h2>
+      <p>Add your assignments and exams, and track how much time you have left.</p>
+      <button class="hero-btn" onclick="goTo('tasks')">➕ Add a task</button>
+      <button class="hero-btn" onclick="goTo('pl')">🎵 Playlists</button>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total tasks</div></div>
+      <div class="stat-box"><div class="stat-num" id="statActive">0</div><div class="stat-label">Active</div></div>
+      <div class="stat-box"><div class="stat-num" id="statDone">0</div><div class="stat-label">Done</div></div>
+    </div>
+
+    <div class="card">
+      <h2>How to use Scholar Signal</h2>
+      <div class="how-it-works">
+        <div class="how-step"><div class="num">1</div><h4>Add tasks</h4><p>Go to Tasks. Type the name, pick a type and deadline.</p></div>
+        <div class="how-step"><div class="num">2</div><h4>Watch the time</h4><p>Red = urgent, yellow = heads up, green = you're good.</p></div>
+        <div class="how-step"><div class="num">3</div><h4>Save links</h4><p>Use Study Nook to save slides, videos, and resources.</p></div>
+        <div class="how-step"><div class="num">4</div><h4>Take breaks</h4><p>Visit Playlists for focus and break music.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TASKS -->
+  <div class="page" id="page-tasks">
+    <div class="card">
+      <h2>Add Upcoming Work</h2>
+      <div class="form-row">
+        <input class="task-name" id="taskName" type="text" placeholder="Assignment, exam, project name..." onkeydown="if(event.key==='Enter')addTask()"/>
+        <select class="task-type" id="taskType">
+          <option>Assignment</option>
+          <option>Project</option>
+          <option>Exam</option>
+          <option>Quiz</option>
+          <option>Presentation</option>
+          <option>Lab Report</option>
+          <option>Reading</option>
+          <option>Other</option>
+        </select>
+        <input class="task-date" id="taskDeadline" type="datetime-local"/>
+        <button class="btn-orange" onclick="addTask()">+ Add</button>
+      </div>
+    </div>
+
+    <h2>Upcoming Work</h2>
+    <div id="tasksList"></div>
+    <button class="done-toggle" id="doneToggleBtn" onclick="toggleDone()" style="display:none">Show completed</button>
+  </div>
+
+  <!-- PLAYLISTS -->
+  <div class="page" id="page-pl">
+    <h2>🎵 Playlists</h2>
+    <p style="color:#8a7e6a;font-size:0.85rem;margin-bottom:20px;">Pick your vibe — focus mode or a quick break.</p>
+    <div class="playlist-section">
+
+      <a class="playlist-link-card" href="https://open.spotify.com/playlist/37i9dQZF1DX8NTLI2TtZa6" target="_blank">
+        <div class="pl-img pl-study">📚</div>
+        <div class="pl-label">
+          <strong>Study Playlist</strong>
+          <span>Focus music to keep you in the zone</span>
+        </div>
+      </a>
+
+      <a class="playlist-link-card" href="https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0" target="_blank">
+        <div class="pl-img pl-break">☕</div>
+        <div class="pl-label">
+          <strong>Study Break</strong>
+          <span>Upbeat tracks to reset your brain</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- STUDY NOOK -->
+  <div class="page" id="page-nook">
+    <h2>📎 Study Nook</h2>
+    <p style="color:#8a7e6a;font-size:0.85rem;margin-bottom:16px;">Save your lecture slides, YouTube links, and resources here.</p>
+    <div class="card">
+      <h3 style="margin-bottom:10px;">Add a link</h3>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <input id="noteLabel" type="text" placeholder="Label — e.g. Week 3 slides" style="width:100%;"/>
+        <input id="noteURL"   type="url"  placeholder="URL (https://...)"           style="width:100%;"/>
+        <div><button class="btn-orange" onclick="addNote()">+ Save</button></div>
+      </div>
+    </div>
+    <h3 style="margin-bottom:10px;">Saved Links</h3>
+    <div id="notesList"><p style="color:#8a7e6a;font-size:0.85rem;">Nothing saved yet.</p></div>
+  </div>
+
+</div><!-- /appShell -->
+
+
+<!-- EXTEND MODAL -->
+<div class="modal-bg" id="extendModal">
+  <div class="modal-box">
+    <h3>Extend Deadline</h3>
+    <label>New deadline</label>
+    <input type="datetime-local" id="extendDate"/>
+    <label>Reason (optional)</label>
+    <textarea rows="3" id="extendReason" placeholder="e.g. Group issue, health reason..."></textarea>
+    <div class="modal-footer">
+      <button class="btn-small btn-undo" onclick="closeModal()">Cancel</button>
+      <button class="btn-small btn-green" onclick="confirmExtend()">Extend</button>
+    </div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<script>
+  /* ====== AUTH ====== */
+  var currentUser = null;
+
+  function switchTab(tab) {
+    document.getElementById('formLogin').style.display  = tab === 'login'  ? 'flex' : 'none';
+    document.getElementById('formSignup').style.display = tab === 'signup' ? 'flex' : 'none';
+    document.getElementById('tabLogin').classList.toggle('active',  tab === 'login');
+    document.getElementById('tabSignup').classList.toggle('active', tab === 'signup');
+    document.getElementById('loginError').textContent  = '';
+    document.getElementById('signupError').textContent = '';
+  }
+
+  function getUsers() { return JSON.parse(localStorage.getItem('ss_users') || '{}'); }
+  function saveUsers(u) { localStorage.setItem('ss_users', JSON.stringify(u)); }
+
+  function doLogin() {
+    var u   = document.getElementById('loginUser').value.trim();
+    var p   = document.getElementById('loginPass').value;
+    var err = document.getElementById('loginError');
+    if (!u || !p) { err.textContent = 'Please fill in both fields.'; return; }
+    var users = getUsers();
+    if (!users[u] || users[u] !== p) { err.textContent = 'Invalid username or password.'; return; }
+    launchApp(u);
+  }
+
+  function doSignup() {
+    var u   = document.getElementById('signupUser').value.trim();
+    var p   = document.getElementById('signupPass').value;
+    var p2  = document.getElementById('signupPass2').value;
+    var err = document.getElementById('signupError');
+    if (!u || !p) { err.textContent = 'Please fill in all fields.'; return; }
+    if (p !== p2) { err.textContent = 'Passwords do not match.'; return; }
+    var users = getUsers();
+    if (users[u]) { err.textContent = 'Username already taken.'; return; }
+    users[u] = p;
+    saveUsers(users);
+    launchApp(u);
+  }
+
+  function launchApp(username) {
+    currentUser = username;
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('appShell').style.display   = 'block';
+    document.getElementById('headerUser').textContent   = username;
+    tasks = JSON.parse(localStorage.getItem('ss_tasks_' + username) || '[]');
+    notes = JSON.parse(localStorage.getItem('ss_notes_' + username) || '[]');
+    render(); renderNotes(); goTo('home');
+  }
+
+  function doLogout() {
+    currentUser = null; tasks = []; notes = [];
+    document.getElementById('appShell').style.display   = 'none';
+    document.getElementById('authScreen').style.display = 'flex';
+    document.getElementById('loginUser').value   = '';
+    document.getElementById('loginPass').value   = '';
+    document.getElementById('signupUser').value  = '';
+    document.getElementById('signupPass').value  = '';
+    document.getElementById('signupPass2').value = '';
+    switchTab('login');
+  }
+
+  /* ====== DATA ====== */
+  var tasks    = [];
+  var notes    = [];
+  var showDone = false;
+  var extendId = null;
+
+  function saveTasks() { if (currentUser) localStorage.setItem('ss_tasks_' + currentUser, JSON.stringify(tasks)); }
+  function saveNotes()  { if (currentUser) localStorage.setItem('ss_notes_' + currentUser, JSON.stringify(notes)); }
+
+  function getUrgency(deadline) {
+    var diff = (new Date(deadline) - Date.now()) / 3600000;
+    if (diff <= 0)  return { cls: 'time-red',    label: 'Overdue' };
+    if (diff <= 24) return { cls: 'time-red',    label: timeLeft(diff) };
+    if (diff <= 84) return { cls: 'time-yellow', label: timeLeft(diff) };
+    return               { cls: 'time-green',  label: timeLeft(diff) };
+  }
+
+  function timeLeft(h) {
+    var d = Math.floor(h/24), hr = Math.floor(h%24), min = Math.floor((h*60)%60);
+    if (d  > 0) return d  + 'd ' + hr  + 'h left';
+    if (hr > 0) return hr + 'h ' + min + 'm left';
+    return min + 'm left';
+  }
+
+  function formatDate(dl) {
+    return new Date(dl).toLocaleString('en-IN', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  }
+
+  function safe(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  /* ====== RENDER TASKS ====== */
+  function render() {
+    var list = document.getElementById('tasksList');
+    if (!list) return;
+    var active = tasks.filter(function(t){ return !t.done; });
+    var done   = tasks.filter(function(t){ return  t.done; });
+    var show   = showDone ? tasks : active;
+
+    if (!show.length) {
+      list.innerHTML = '<div class="empty">No tasks yet. Add one above!</div>';
+    } else {
+      list.innerHTML = '';
+      show.forEach(function(t) {
+        var urg = getUrgency(t.deadline);
+        var div = document.createElement('div');
+        div.className = 'task-item' + (t.done ? ' done' : '');
+        div.innerHTML =
+          '<div class="task-info">' +
+            '<h3>' + safe(t.name) + '</h3>' +
+            '<div class="task-meta">' +
+              '<span class="badge">' + t.type + '</span>' +
+              '<span>Due: ' + formatDate(t.deadline) + '</span>' +
+              '<span class="time-left ' + urg.cls + '">' + urg.label + '</span>' +
+              (t.extended ? '<span style="color:#3d6b52;font-size:0.72rem;">Extended</span>' : '') +
+            '</div>' +
+          '</div>' +
+          '<div class="task-buttons">' +
+            (!t.done ? '<button class="btn-small btn-green" onclick="openExtend(\'' + t.id + '\')">Extend</button>' : '') +
+            '<button class="btn-small ' + (t.done ? 'btn-undo' : 'btn-done') + '" onclick="toggleTask(\'' + t.id + '\')">' + (t.done ? 'Undo' : 'Done') + '</button>' +
+            '<button class="btn-small btn-remove" onclick="deleteTask(\'' + t.id + '\')">Remove</button>' +
+          '</div>';
+        list.appendChild(div);
+      });
+    }
+
+    var btn = document.getElementById('doneToggleBtn');
+    if (btn) {
+      btn.style.display = done.length ? 'block' : 'none';
+      if (done.length) btn.textContent = showDone ? 'Hide completed' : 'Show ' + done.length + ' completed';
+    }
+
+    var sT = document.getElementById('statTotal');
+    var sA = document.getElementById('statActive');
+    var sD = document.getElementById('statDone');
+    if (sT) sT.textContent = tasks.length;
+    if (sA) sA.textContent = active.length;
+    if (sD) sD.textContent = done.length;
+  }
+
+  /* ====== RENDER NOTES ====== */
+  function renderNotes() {
+    var el = document.getElementById('notesList');
+    if (!el) return;
+    if (!notes.length) { el.innerHTML = '<p style="color:#8a7e6a;font-size:0.85rem;">Nothing saved yet.</p>'; return; }
+    el.innerHTML = '';
+    notes.forEach(function(n, i) {
+      var div = document.createElement('div');
+      div.className = 'note-item';
+      div.innerHTML =
+        '<div><div class="note-label">' + safe(n.label) + '</div>' +
+        '<a class="note-link" href="' + safe(n.url) + '" target="_blank">' + safe(n.url) + '</a></div>' +
+        '<button class="note-remove" onclick="deleteNote(' + i + ')">Remove</button>';
+      el.appendChild(div);
+    });
+  }
+
+  /* ====== TASK ACTIONS ====== */
+  function addTask() {
+    var name = document.getElementById('taskName').value.trim();
+    var type = document.getElementById('taskType').value;
+    var dl   = document.getElementById('taskDeadline').value;
+    if (!name) { toast('Enter a task name.', '#d4a017'); return; }
+    if (!dl)   { toast('Pick a deadline.',   '#d4a017'); return; }
+    tasks.unshift({ id: Date.now()+'', name:name, type:type, deadline:dl, done:false, extended:false });
+    saveTasks(); render();
+    document.getElementById('taskName').value = '';
+    document.getElementById('taskDeadline').value = '';
+    toast('"' + name + '" added!', '#4a9e6b');
+  }
+
+  function deleteTask(id) { tasks = tasks.filter(function(t){ return t.id !== id; }); saveTasks(); render(); }
+
+  function toggleTask(id) {
+    var t = tasks.find(function(t){ return t.id === id; });
+    if (t) { t.done = !t.done; saveTasks(); render(); }
+  }
+
+  function toggleDone() { showDone = !showDone; render(); }
+
+  function openExtend(id) {
+    extendId = id;
+    var t = tasks.find(function(t){ return t.id === id; });
+    document.getElementById('extendDate').value   = t.deadline;
+    document.getElementById('extendReason').value = '';
+    document.getElementById('extendModal').classList.add('open');
+  }
+  function closeModal() { extendId = null; document.getElementById('extendModal').classList.remove('open'); }
+  function confirmExtend() {
+    var newDL = document.getElementById('extendDate').value;
+    if (!newDL) { toast('Pick a new deadline.', '#d4a017'); return; }
+    var t = tasks.find(function(t){ return t.id === extendId; });
+    if (t) { t.deadline = newDL; t.extended = true; saveTasks(); render(); toast('Deadline extended!', '#3d6b52'); }
+    closeModal();
+  }
+
+  /* ====== NOTES ====== */
+  function addNote() {
+    var label = document.getElementById('noteLabel').value.trim();
+    var url   = document.getElementById('noteURL').value.trim();
+    if (!label) { toast('Add a label.', '#d4a017'); return; }
+    if (!url)   { toast('Add a URL.',   '#d4a017'); return; }
+    notes.push({ label:label, url:url });
+    saveNotes(); renderNotes();
+    document.getElementById('noteLabel').value = '';
+    document.getElementById('noteURL').value   = '';
+  }
+  function deleteNote(i) { notes.splice(i,1); saveNotes(); renderNotes(); }
+
+  /* ====== TOAST ====== */
+  function toast(msg, color) {
+    var c = document.getElementById('toasts'), el = document.createElement('div');
+    el.className = 'toast';
+    el.innerHTML = '<span class="toast-dot" style="background:' + color + '"></span>' + msg;
+    c.appendChild(el);
+    setTimeout(function(){ if (el.parentNode) el.parentNode.removeChild(el); }, 4000);
+  }
+
+  /* ====== PAGE NAV ====== */
+  function goTo(page) {
+    document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+    document.querySelectorAll('nav button').forEach(function(b){ b.classList.remove('active'); });
+    var pg = document.getElementById('page-' + page);
+    var tb = document.getElementById('tab-'  + page);
+    if (pg) pg.classList.add('active');
+    if (tb) tb.classList.add('active');
+    window.scrollTo(0, 0);
+    render();
+  }
+
+  setInterval(function(){ if (currentUser) render(); }, 60000);
+</script>
+</body>
+</html>
